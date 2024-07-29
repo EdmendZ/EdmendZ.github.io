@@ -1,0 +1,684 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>RTSP 服务器实现 | TryhardZhang Blog</title><meta name="keywords" content="RTSP"><meta name="author" content="Edmend Zhang"><meta name="copyright" content="Edmend Zhang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#f7f9fe"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="RTSP 服务器实现"><meta name="application-name" content="RTSP 服务器实现"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#f7f9fe"><meta property="og:type" content="article"><meta property="og:title" content="RTSP 服务器实现"><meta property="og:url" content="http://example.com/2024/07/29/intern/RTSP%20%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%9E%E7%8E%B0/index.html"><meta property="og:site_name" content="TryhardZhang Blog"><meta property="og:description" content=""><meta property="og:locale" content="en"><meta property="og:image" content="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Aachal%20%280S11oxS9vyc%29.jpg?_r_=281e90ed-2bd9-b1a4-30e5-7488346a406f"><meta property="article:author" content="Edmend Zhang"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Aachal%20%280S11oxS9vyc%29.jpg?_r_=281e90ed-2bd9-b1a4-30e5-7488346a406f"><meta name="description" content=""><link rel="shortcut icon" href="/favicon.ico"><link rel="canonical" href="http://example.com/2024/07/29/intern/RTSP%20%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%9E%E7%8E%B0/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: {"enable":true,"title":"与数百名博主无限进步","addFriendPlaceholder":"昵称（请勿包含博客等字样）：\n网站地址（要求博客地址，请勿提交个人主页）：\n头像图片url（请提供尽可能清晰的图片，我会上传到我自己的图床）：\n描述：\n站点截图（可选）：\n"},
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"local","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"w(ﾟДﾟ)w 不要走！再看看嘛！","backTitle":"♪(^∇^*)欢迎肥来！"},
+  LA51: undefined,
+  greetingBox: undefined,
+  twikooEnvId: 'https://tryhardzhang.netlify.app/.netlify/functions/twikoo',
+  commentBarrageConfig:undefined,
+  root: '/',
+  preloader: {"source":3},
+  friends_vue_info: {"apiurl":null},
+  navMusic: true,
+  mainTone: undefined,
+  authorStatus: {"skills":["🤖️ 游戏数码爱好者","🔍 分享与热心帮助","🏠 桌游剧本杀玩家","🔨 设计开发一条龙","🤝 游戏设计图形学","🏃 脚踏实地行动派","🧱 团队小组发动机","💢 壮汉人狠话不多"]},
+  algolia: {"appId":"ZFUDQRDP4H","apiKey":"ba6322d83bf3628e149410dca0d696f6","indexName":"hexo","hits":{"per_page":6},"languages":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}.","hits_stats":"${hits} results found in ${time} ms"}},
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":330},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: 'days',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: Edmend Zhang","link":"Link: ","source":"Source: TryhardZhang Blog","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.1.2/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.1.2/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'TryhardZhang Blog',
+  title: 'RTSP 服务器实现',
+  postAI: '',
+  pageFillDescription: 'RTSP 服务器实现, RTSP协议解析及实现, Wireshark 捕获, ffmpeg, ffmpeg 三大命令行工具, ffmpeg 命令行, 视频生成图片, 图片合成视频, 概念补充, 摄像头推拉流amp桌面推拉流, 摄像头推流到RTMP服务, 摄像头推流到RTSP （rtp over tcp）, windows桌面推流 RTSPampRTMP, windows桌面推流到RTSP服务, ffmpeg基本推拉流命令, ffmpeg 基本操作, 实现传输h264的RTSP服务器, 概念补充, CSRC 计数器, CSRC 计数器的概念, CSRC 计数器的作用, H264, H264 码流进行RTP封装, SSRC, RTP包的格式是绝不会变的永远是RTP头+RTP载荷, 如何解决无法区分RTP 是分片打包的头尾还是中间服务器实现协议解析及实现是一个实时传输流协议是一个应用层的协议通常说的包括协议协议协议对于这些协议的作用简单的理解如下协议负责服务器与客户端之间的请求与响应协议负责服务器与客户端之间传输媒体数据协议负责提供有关传输质量的反馈就是确保传输的质量三者的关系并不会发送媒体数据只是完成服务器和客户端之间的信令交互协议负责媒体数据传输负责数据包的监视和反馈和并没有规定传输层的类型可以选择和的传输层则要求是基于通过一个客户端拉流播放一个视频流的方式展示的交互过程并通过抓包分析协议一个会话级描述多个媒体级描述创建描述符启动启动绑定端口监听监听连接客户端的循环处理接受到数据后的逻辑捕获本地客户端访问本地服务通过网络回环地址所以选择筛选所捕获的数据如下所示获取服务器支持的方法相应音视频流的编码格式客户端通过请求与服务器简历建立与流媒体数据的连接播放客户端发起返回又发起返回数据发起请求端口后加入这是为了区别建立流的通道规范不同三大命令行工具主要是多媒体的编解码工具具体功能主要包括视频裁剪去水印添加提取封面提取音视频等提供了音视频显示和播放相关的图像信息音频的波形信息等是个播放器是多媒体分析工具比如音视频的参数媒体容器的参数信息等可以分析媒体文件每个包的长度包的类型帧的信息等命令行视频生成图片表示图片的序号为个数字表示图片的序号依次增加帧数格式化的格式图片合成视频指定合成视频的编码格式为等于这个参数需要写在之前指定图片的格式指定视频编码格式分辨率需要跟图片的宽高一致不一致会报错长度关键帧间隔表示关键帧帧间隔这个选项表示限制帧间隔最小为帧禁用场景识别即进制自动添加帧帧格式指定合成视频分辨率自适应宽为高按照比例计算概念补充是指一组图像序列它定义了视频编码的结构和压缩效率长度则表示在该组图像序列中包含的帧数的结构通常包括以下几种类型的帧帧完全独立编码不依赖其他帧可以作为随机访问点例如视频的起始点帧使用之前的帧或帧作为参考来进行预测编码压缩效率较高帧使用前后帧帧或帧作为参考进行预测编码压缩效率最高但解码复杂度也最大长度决定了视频流中帧的频率例如一个长度为的视频流表示每帧就会有一个帧其余的帧可能是帧或帧较短的长度例如长度为意味着更多的帧从而提高视频的随机访问性能但会增加数据量较长的长度则会减少帧数量提高压缩效率但会降低随机访问性能摄像头推拉流桌面推拉流查看摄像头列表播放摄像头是通过查看列表的命令行获得的名称查看摄像头的分辨率格式摄像头推流到服务视频的码流格式是摄像头推流到桌面推流桌面推流到服务基本推拉流命令推流表示复制本地文件表示对音频进行操作表示对音频进行禁用拉流转推流基本操作指定时间段录制视频文件和源文件保持一致音频文件和源文件保持一致提取裸码流实现传输的服务器概念补充计数器计数器通常用于实时传输协议中特别是在涉及多路音频或视频流的情况下是一种用于在网络上传输实时数据的协议广泛应用于视频会议电话流媒体等实时通信应用中计数器的概念标识符在包头中有一个字段叫做列表用于列出所有为当前包贡献数据的源每个源都有一个唯一的标识符称为标识符计数器包头中有一个字段用于存储标识符的数量即计数器它指示了当前包中有多少个源贡献了数据计数器的作用计数器的主要作用是帮助接收端了解当前包是由哪些源生成或混合而成的这在混合器或中继器等场景中尤为重要这些设备会接收多个源的流并将它们组合成一个新的流发送给接收端头的结构体计数器占位指示标识符的个数占位如果则在报头后跟有一个扩展报头填充标志占位如果则在该报文的尾部填充一个或多个额外的八位组它们不是有效载荷的一部分协议的版本号占位当前协议版本号为有效载荷类型占位用于说明报文中有效载荷的类型如音频图像等标记占位不同的有效载荷有不同的含义对于视频标记一帧的结束对于音频标记会话的开始占位用于标识发送者所发送的报文的序列号每发送一个报文序列号增接收者通过序列号来检测报文丢失情况重新排序报文恢复数据占位时戳反映了该报文的第一个八位组的采样时刻接收者使用时戳来计算延迟和延迟抖动并进行同步控制占位用于标识同步信源该标识符是随机选择的参加同一视频会议的两个同步信源不能有相同的标准的还可能存在个特约信源标识符每个标识符占位可以有个每个标识了包含在该报文有效载荷中的所有特约信源包的结构体包的结构体包含一个头部和载荷一压缩技术主要采用了以下几种方法对视频数据进行压缩帧内预测压缩解决的是空域数据冗余问题帧间预测压缩运动估计与补偿解决的是时域数据冗徐问题整数离散余弦变换将空间上的相关性变为频域上无关的数据然后进行量化压缩经过压缩后的帧分为帧帧和帧帧关键帧采用帧内压缩技术帧向前参考帧在压缩时只参考前面已经处理的帧采用帧音压缩技术帧双向参考帧在压缩时它即参考前而的帧又参考它后面的帧采用帧间压缩技术除了帧外还有图像序列二组成网络提取层每一张图片压缩出来的结果都是一个独立的网络抽象层单元是视频编码中非常重要的概念特别是在和等现代视频编码标准中用于组织和传输编码视频数据使其适应不同的传输网络和存储介质一个由两个主要部分组成头和有效载荷头包含关于类型优先级等信息在中头通常是个字节包含以下几个字段位这个位必须为如果不为说明存在错误位指示该的优先级表示最低优先级表示最高优先级位指示的类型如帧帧等在中头更加复杂包含个字节提供更多的描述信息有效载荷包含实际的视频编码数据例如编码的帧数据如帧帧帧消息补充增强信息序列参数集图像参数集等视讯编码层对于形成网络提取层过程的描述三码流结构的功能分为两层视频编码层和网络提取层数据即被压缩编码后的视频数据序列在数据要封装到单元中之后才可以用来传输或存储序列参数集作用于一系列连续的编码图像图像参数集作用于编码视频序列中一个或多个独立的图像用来存储分辨率等一系列信息四帧是一种特殊的帧常用于视频编码和压缩技术中特别是在和等视频编码标准中帧的特点独立解码帧可以独立解码不依赖于之前的任何帧这意味着解码器在解码帧时不需要参考之前的帧从而提供一个新的解码起点清除参考帧列表当解码器遇到一个帧时它会清除之前所有的参考帧这防止了解码器使用过时的参考帧进行错误预测从而保证解码的一致性和准确性随机访问点帧通常被用作视频流中的随机访问点允许从该帧开始进行无缝播放或快进快退等操作帧在视频编码中的作用视频切片帧允许视频流被分割成独立的片段每个片段可以独立解码和播放这对于视频编辑和处理非常重要错误恢复在有损网络环境中例如流媒体传输视频数据可能会丢失或损坏帧提供了一个清晰的恢复点从而提高了视频流的鲁棒性和稳定性直播和点播在直播或点播视频流中帧允许观众在任意时间点加入直播而无需从视频的开头开始观看帧与帧的区别普通帧完全独立可以解码自身不依赖任何其他帧它可以被后续的帧引用作为参考帧不仅是独立解码的帧而且会强制清除解码器的参考帧缓存确保后续帧不再引用帧之前的帧它用于实现视频流的切断点或关键帧使得在流媒体中可以从该帧开始进行无缝播放或跳转码流进行封装由一个一个的组成每个之间使用或分隔开每个的第一次字节都有特殊的含义是视频流的基本单位每个包含一段编码后的视频数据视频编码器将原始视频帧编码为然后将这些打包成实时传输协议包进行传输常用帧帧帧注和只是编码解码的参数不是视频数据和定义的是视频流的结构和参数这些信息在一个视频序列中相对稳定不需要在每个帧上进行时间同步它们不代表具体的帧数据而是描述解码器如何解释后续的实际帧数据从一个的文件中将一个一个的提取出来然后封装成包禁止位占用头的第一个位当禁止位值为时表示语法错误参考级别占用头的第二到第三个位值越大该越重要重要级别单元数据类型也就是标识该单元的数据类型是哪种占用头的第四到第个位可以由三种打包方式单打包一个包包含一个完整的将一整个的数据放入包的载荷中这是最简单的一种方式聚合打包对于较小的一个包可包含多个完整的分片打包对于较大的一个可以分为多个包发送每个包都有大小限制的因为一般都是使用发送没有流量控制所以要限制每一次发送的大小所以如果一个的太大就需要分成多个包发送至于如何分成多个包当我们进入的时候需要都文件进行封包通道传输视频数据封装和传输视频编码是视频流的基本单位每个包含一段编码后的视频数据视频编码器将原始视频帧编码为然后将这些打包成实时传输协议包进行传输传输效率通过将视频数据划分为多个可以提高传输效率和适应不同网络条件例如在不可靠的网络条件下丢失一个不会影响整个视频流的解码解码和播放解析客户端接收包后需要解析以重建原始的视频帧解析是解码过程的关键步骤它决定了视频流的质量和流畅性同步播放中包含时间戳信息用于在客户端同步播放视频和音频流正确解析这些时间戳对于实现流畅的播放体验至关重要错误恢复和重传错误检测的头部信息可以帮助检测传输中的错误并根据需要进行错误恢复服务器和客户端可以使用这些信息来判断是否丢失或损坏重传机制如果检测到丢失或损坏服务器可以根据需要启动重传机制以确保视频流的完整性和质量是实时传输协议中的一个重要概念它用于标识参与会话的各个数据源以实现同步和管理每个数据包都包含一个标识符用于标识数据包的源这个标识符是随机生成的目的是确保在同一会话中每个数据源都有一个唯一的标识符同步和多路复用在会话中同步多个数据流如音频和视频是至关重要的使接收端能够正确地同步这些流确保音频和视频之间的协调一致多路复用是指在同一会话中传输多个数据流通过使用不同的标识符可以在同一会话中传输和管理多个数据流而不会发生混淆冲突检测和解决在会话中如果两个不同的数据源生成了相同的标识符就会发生冲突规范提供了冲突检测和解决机制例如当检测到冲突时数据源会生成一个新的标识符并继续发送数据冲突检测机制确保了标识符的唯一性从而保证了数据流的正确标识和管理生成当一个会话开始时每个数据源会随机生成一个位的标识符这个标识符在会话期间应保持不变以确保数据流的一致性传输在每个数据包的头部都包含一个字段用于标识该数据包的源接收端使用这个标识符来区分和管理不同的数据流例如在视频会议中音频和视频数据包会分别带有不同的标识符接收端根据将音频和视频流进行同步和播放包的格式是绝不会变的永远是头载荷如何解决无法区分是分片打包的头尾还是中间第一个字节位其格式如下高三位与第一个字节的高三位相同表示该包一个分片为什么是第二个字节位其格式如下标记该分片打包的第一个包比较该分片打包的最后一个包的开始播放发送包读取失败已写死读取结束判断当前帧起始码帧的实际数据长度根据个分隔符每次读取一个将视频帧分片和封装到包中的功能并通过发送第一个字节获取后五位长度小于最大包长单一单元模式加序并累计如果是就不需要加时间戳长度小于最大包场分片模式有几个完整的包剩余不完整包的大小发送完整的包位与运算后五位或运算第一包数据最后一包数据发送剩余的数据时间戳累计时间定义',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-07-29 11:10:14',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#18171d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f7f9fe')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+          const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+          const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+          const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+          if (t === undefined) {
+            if (isLightMode) activateLightMode()
+            else if (isDarkMode) activateDarkMode()
+            else if (isNotSpecified || hasNoSupport) {
+              const now = new Date()
+              const hour = now.getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            window.matchMedia('(prefers-color-scheme: dark)').addListener(e => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else if (t === 'light') activateLightMode()
+          else activateDarkMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div class="loading-bg"><img class="loading-img nolazyload" alt="加载头像" src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/blog_image/20240410162417.png"/><div class="loading-image-dot"></div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded");
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.endLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><a id="site-name" href="/" accesskey="h"><div class="title">TryhardZhang Blog</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 隧道</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 想法</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=9570676565&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> 相册集</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/air-conditioner/"><i class="anzhiyufont anzhiyu-icon-fan faa-tada" style="font-size: 0.9em;"></i><span> 小空调</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> 关于本人</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> 随便逛逛</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="随机前往一个文章" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="搜索🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="中控台" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"><div class="console-card" id="card-newest-comments"><div class="card-content"><div class="author-content-item-tips">互动</div><span class="author-content-item-title"> Newest Comments</span></div><div class="aside-list"><span>loading...</span></div></div></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">兴趣点</div><span class="author-content-item-title">寻找你感兴趣的领域</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/Docker/" style="font-size: 1.05rem;">Docker<sup>1</sup></a><a href="/tags/FFMPEG/" style="font-size: 1.05rem;">FFMPEG<sup>1</sup></a><a href="/tags/Graphics/" style="font-size: 1.05rem;">Graphics<sup>13</sup></a><a href="/tags/Graphics-Games101/" style="font-size: 1.05rem;">Graphics - Games101<sup>1</sup></a><a href="/tags/Home-Assistant-%E9%9B%86%E6%88%90-Frigate-%E5%8A%9F%E8%83%BD%E5%B1%95%E7%A4%BA/" style="font-size: 1.05rem;">Home Assistant 集成 Frigate 功能展示<sup>1</sup></a><a href="/tags/HomeAssistant/" style="font-size: 1.05rem;">HomeAssistant<sup>1</sup></a><a href="/tags/RTSP/" style="font-size: 1.05rem;">RTSP<sup>6</sup></a><a href="/tags/SDL/" style="font-size: 1.05rem;">SDL<sup>1</sup></a><a href="/tags/concepts/" style="font-size: 1.05rem;">concepts<sup>2</sup></a><a href="/tags/csen-272/" style="font-size: 1.05rem;">csen 272<sup>2</sup></a><a href="/tags/docker/" style="font-size: 1.05rem;">docker<sup>1</sup></a><a href="/tags/nlp/" style="font-size: 1.05rem;">nlp<sup>2</sup></a><a href="/tags/search/" style="font-size: 1.05rem;">search<sup>2</sup></a><a href="/tags/%E5%8D%9A%E5%AE%A2/" style="font-size: 1.05rem;">博客<sup>1</sup></a><a href="/tags/%E6%92%AD%E6%94%BE%E5%99%A8/" style="font-size: 1.05rem;">播放器<sup>1</sup></a><a href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/" style="font-size: 1.05rem;">虚拟机<sup>1</sup></a><a href="/tags/%E8%AF%BE%E7%A8%8B/" style="font-size: 1.05rem;">课程<sup>1</sup></a><a href="/tags/%E9%9F%B3%E8%A7%86%E9%A2%91%E5%BC%80%E5%8F%91/" style="font-size: 1.05rem;">音视频开发<sup>1</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>文章</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2024/07/"><span class="card-archive-list-date">July 2024</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">26</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2024/04/"><span class="card-archive-list-date">April 2024</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="显示模式切换" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="边栏显示控制"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="音乐开关"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="切换"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="article-meta tags"><a class="article-meta__tags" href="/tags/RTSP/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>RTSP</span></a></span></div></div><h1 class="post-title" itemprop="name headline">RTSP 服务器实现</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2024-07-29T11:10:14.894Z" title="Created 2024-07-29 11:10:14">2024-07-29</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2024-07-29T11:10:14.894Z" title="Updated 2024-07-29 11:10:14">2024-07-29</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span id="" data-flag-title="RTSP 服务器实现"><i class="anzhiyufont anzhiyu-icon-fw-eye post-meta-icon"></i><span class="post-meta-label" title="阅读量">Post View:</span><span id="twikoo_visitors" title="访问量"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-spin"></i></span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为Chengdu"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>Chengdu</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Aachal%20%280S11oxS9vyc%29.jpg?_r_=281e90ed-2bd9-b1a4-30e5-7488346a406f"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2024/07/29/intern/RTSP%20%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%9E%E7%8E%B0/"><header><a href="/tags/RTSP/" tabindex="-1" itemprop="url">RTSP</a><h1 id="CrawlerTitle" itemprop="name headline">RTSP 服务器实现</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">Edmend Zhang</span><time itemprop="dateCreated datePublished" datetime="2024-07-29T11:10:14.894Z" title="Created 2024-07-29 11:10:14">2024-07-29</time><time itemprop="dateCreated datePublished" datetime="2024-07-29T11:10:14.894Z" title="Updated 2024-07-29 11:10:14">2024-07-29</time></header><h1 id="RTSP-服务器实现"><a href="#RTSP-服务器实现" class="headerlink" title="RTSP 服务器实现"></a>RTSP 服务器实现</h1><h2 id="RTSP协议解析及实现"><a href="#RTSP协议解析及实现" class="headerlink" title="RTSP协议解析及实现"></a>RTSP协议解析及实现</h2><p>RTSP是一个实时传输流协议，是一个应用层的协议。通常说的RTSP 包括RTSP协议、RTP协议、RTCP协议，对于这些协议的作用简单的理解如下</p>
+<ul>
+<li>RTSP协议：负责服务器与客户端之间的请求与响应</li>
+<li>RTP协议： 负责服务器与客户端之间传输媒体数据</li>
+<li>RTCP协议：负责提供有关RTP传输质量的反馈，就是确保RTP传输的质量</li>
+</ul>
+<p>三者的关系： rtsp并不会发送媒体数据，只是完成服务器和客户端之间的信令交互，rtp协议负责媒体数据传输，rtcp负责rtp数据包的监视和反馈。rtp和rtcp并没有规定传输层的类型，可以选择udp和tcp。Rtsp的传输层则要求是基于tcp。</p>
+<p>通过一个ffmpeg 客户端拉流播放一个rtsp视频流的方式，展示RTSP的交互过程。并通过Wireshark抓包分析。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SDP 协议（https://blog.csdn.net/uianster/article/details/125902301）</span><br><span class="line">一个会话级描述</span><br><span class="line">多个媒体级描述</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>main</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">   <span class="comment">// 创建socket描述符</span></span><br><span class="line">   <span class="comment">// 启动windows socket start</span></span><br><span class="line">   WSADATA wsaData;</span><br><span class="line">   <span class="keyword">if</span> (<span class="built_in">WSAStartup</span>(<span class="built_in">MAKEWORD</span>(<span class="number">2</span>, <span class="number">2</span>), &amp;wsaData) != <span class="number">0</span>)</span><br><span class="line">   &#123;</span><br><span class="line">       <span class="built_in">printf</span>(<span class="string">&quot;PC Server Socket Start Up Error \n&quot;</span>);</span><br><span class="line">       <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">// 启动windows socket end</span></span><br><span class="line"></span><br><span class="line">   <span class="type">int</span> serverSockfd;</span><br><span class="line"></span><br><span class="line">   serverSockfd = <span class="built_in">createTcpSocket</span>();</span><br><span class="line">   <span class="keyword">if</span> (serverSockfd &lt; <span class="number">0</span>)</span><br><span class="line">   &#123;</span><br><span class="line">       <span class="built_in">WSACleanup</span>();</span><br><span class="line">       <span class="built_in">printf</span>(<span class="string">&quot;failed to create tcp socket\n&quot;</span>);</span><br><span class="line">       <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 绑定端口</span></span><br><span class="line">   <span class="keyword">if</span> (<span class="built_in">bindSocketAddr</span>(serverSockfd, <span class="string">&quot;0.0.0.0&quot;</span>, SERVER_PORT) &lt; <span class="number">0</span>)</span><br><span class="line">   &#123;</span><br><span class="line">       <span class="built_in">printf</span>(<span class="string">&quot;failed to bind addr\n&quot;</span>);</span><br><span class="line">       <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 监听</span></span><br><span class="line">   <span class="keyword">if</span> (<span class="built_in">listen</span>(serverSockfd, <span class="number">10</span>) &lt; <span class="number">0</span>)</span><br><span class="line">   &#123;</span><br><span class="line">       <span class="built_in">printf</span>(<span class="string">&quot;failed to listen\n&quot;</span>);</span><br><span class="line">       <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">   &#125;</span><br><span class="line">   </span><br><span class="line">   <span class="built_in">printf</span>(<span class="string">&quot;%s rtsp://127.0.0.1:%d\n&quot;</span>, __FILE__, SERVER_PORT);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 监听连接客户端的循环</span></span><br><span class="line">   <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">       <span class="type">int</span> clientSockfd;</span><br><span class="line">       <span class="type">char</span> clientIp[<span class="number">40</span>];</span><br><span class="line">       <span class="type">int</span> clientPort;</span><br><span class="line"></span><br><span class="line">       clientSockfd = <span class="built_in">acceptClient</span>(serverSockfd, clientIp, &amp;clientPort);</span><br><span class="line">       <span class="keyword">if</span> (clientSockfd &lt; <span class="number">0</span>)</span><br><span class="line">       &#123;</span><br><span class="line">           <span class="built_in">printf</span>(<span class="string">&quot;failed to accept client\n&quot;</span>);</span><br><span class="line">           <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="built_in">printf</span>(<span class="string">&quot;accept client;client ip:%s,client port:%d\n&quot;</span>, clientIp, clientPort);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 处理接受到数据后的逻辑</span></span><br><span class="line">       <span class="built_in">doClient</span>(clientSockfd, clientIp, clientPort);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Wireshark-捕获"><a href="#Wireshark-捕获" class="headerlink" title="Wireshark 捕获"></a>Wireshark 捕获</h3><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="C:\Users\edmen\AppData\Roaming\Typora\typora-user-images\image-20240717105034848.png" alt="image-20240717105034848" style="zoom:50%;" />
+
+<p>本地客户端访问本地服务 通过网络回环地址 127.0.0.1 所以选择 Adapter for loopback traffic capture</p>
+<p>筛选所捕获的rtsp数据如下所示</p>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/blog_image/image-20240717105404085.png" alt="image-20240717105404085" style="zoom:50%;" />
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">OPTIONS: 获取服务器支持的方法</span><br><span class="line">DESCIRIBE: 相应音视频流的编码格式</span><br><span class="line">SETUP: 客户端通过setup请求与服务器简历建立与流媒体数据的连接</span><br><span class="line">PLAY: 播放</span><br></pre></td></tr></table></figure>
+
+<p>客户端发起 OPITION 返回RTSP -&gt; 又发起DESCRIBE -&gt; 返回RTSP&#x2F;SDP数据 </p>
+<p>发起SETUP请求 端口后加入 track0 这是为了区别建立流的通道</p>
+<p>RTSP transport 规范不同 RTP&#x2F;AVP&#x2F;UDP</p>
+<ul>
+<li>doclient</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    <span class="type">int</span> recvLen;</span><br><span class="line"></span><br><span class="line">    recvLen = <span class="built_in">recv</span>(clientSockfd, rBuf, <span class="number">2000</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (recvLen &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    rBuf[recvLen] = <span class="string">&#x27;\0&#x27;</span>;</span><br><span class="line">    std::string recvStr = rBuf;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s rBuf = %s \n&quot;</span>,__FUNCTION__,rBuf);</span><br><span class="line"></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span>* sep = <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    <span class="type">char</span>* line = <span class="built_in">strtok</span>(rBuf, sep);</span><br><span class="line">    <span class="keyword">while</span> (line) &#123;</span><br><span class="line">     </span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">strstr</span>(line, <span class="string">&quot;OPTIONS&quot;</span>) ||</span><br><span class="line">            <span class="built_in">strstr</span>(line, <span class="string">&quot;DESCRIBE&quot;</span>) ||</span><br><span class="line">            <span class="built_in">strstr</span>(line, <span class="string">&quot;SETUP&quot;</span>) ||</span><br><span class="line">            <span class="built_in">strstr</span>(line, <span class="string">&quot;PLAY&quot;</span>)) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">sscanf</span>(line, <span class="string">&quot;%s %s %s\r\n&quot;</span>, method, url, version) != <span class="number">3</span>) &#123;</span><br><span class="line">                <span class="comment">// error</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">strstr</span>(line, <span class="string">&quot;CSeq&quot;</span>)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">sscanf</span>(line, <span class="string">&quot;CSeq: %d\r\n&quot;</span>, &amp;CSeq) != <span class="number">1</span>) &#123;</span><br><span class="line">                <span class="comment">// error</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (!<span class="built_in">strncmp</span>(line, <span class="string">&quot;Transport:&quot;</span>, <span class="built_in">strlen</span>(<span class="string">&quot;Transport:&quot;</span>))) &#123;</span><br><span class="line">            <span class="comment">// Transport: RTP/AVP/UDP;unicast;client_port=13358-13359</span></span><br><span class="line">            <span class="comment">// Transport: RTP/AVP;unicast;client_port=13358-13359</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">sscanf</span>(line, <span class="string">&quot;Transport: RTP/AVP/UDP;unicast;client_port=%d-%d\r\n&quot;</span>,</span><br><span class="line">                &amp;clientRtpPort, &amp;clientRtcpPort) != <span class="number">2</span>) &#123;</span><br><span class="line">                <span class="comment">// error</span></span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;parse Transport error \n&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        line = <span class="built_in">strtok</span>(<span class="literal">NULL</span>, sep);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/blog_image/image-20240717174743196.png" alt="image-20240717174743196" style="zoom: 50%;" />
+
+<h2 id="ffmpeg"><a href="#ffmpeg" class="headerlink" title="ffmpeg"></a>ffmpeg</h2><h3 id="ffmpeg-三大命令行工具"><a href="#ffmpeg-三大命令行工具" class="headerlink" title="ffmpeg 三大命令行工具"></a>ffmpeg 三大命令行工具</h3><ol>
+<li><strong>ffmpeg 主要是多媒体的编解码工具 ，具体功能主要包括视频裁剪、去水印 、添加logo、提取封面、提取音视频等。</strong></li>
+<li><strong>ffplay 提供了音视频显示和播放相关的图像信息，音频的波形信息等，是个播放器。</strong></li>
+<li><strong>ffprobe 是多媒体分析工具 比如音视频的参数、媒体容器的参数信息等。可以分析媒体文件每个包的长度、包的类型、帧的信息等。</strong></li>
+</ol>
+<h3 id="ffmpeg-命令行"><a href="#ffmpeg-命令行" class="headerlink" title="ffmpeg 命令行"></a>ffmpeg 命令行</h3><h4 id="视频生成图片"><a href="#视频生成图片" class="headerlink" title="视频生成图片"></a>视频生成图片</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -i input.mp4 -r 25 -g image2.data/image%3d.jpg</span><br><span class="line">image%3d.jpg 表示图片的序号为3个数字</span><br><span class="line">image%d.jpg 表示图片的序号依次增加</span><br><span class="line">-r 25 帧数</span><br><span class="line">-f image2 格式化的格式</span><br></pre></td></tr></table></figure>
+
+<h4 id="图片合成视频"><a href="#图片合成视频" class="headerlink" title="图片合成视频"></a>图片合成视频</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -r 1 -f image2 -i data/%d.jpg -vcodec libx264 -s 640*480 g 1 -keyint_min 1 -sc_threshold 0 -pix_fmt yuv420p out.mp4</span><br><span class="line">-vcodec libx264 指定合成视频的编码格式为h264</span><br><span class="line">-r 1 fps等于1 （这个参数需要写在 -f 之前）</span><br><span class="line">image2 指定图片的格式</span><br><span class="line">-i input</span><br><span class="line">-vcodec 指定视频编码格式</span><br><span class="line">-s 640*480 分辨率 需要跟图片的宽高一致 不一致会报错</span><br><span class="line">-g 1 GOP 长度</span><br><span class="line">-keyint_min 1 关键帧间隔 keyint表示关键帧（IDR帧）间隔，这个选项表示限制IDR帧间隔最小为1帧</span><br><span class="line">-sc——threshold 0 禁用场景识别，即进制自动添加IDR帧</span><br><span class="line">-pix_fmt yuv420p 帧格式</span><br><span class="line">-vf scale=1200:1 指定合成视频分辨率自适应宽为1280，高按照比例计算</span><br></pre></td></tr></table></figure>
+
+<h5 id="概念补充"><a href="#概念补充" class="headerlink" title="概念补充"></a>概念补充</h5><p>GOP：GOP（Group of Pictures）是指一组图像序列，它定义了视频编码的结构和压缩效率。GOP长度则表示在该组图像序列中包含的帧数。GOP的结构通常包括以下几种类型的帧：</p>
+<ol>
+<li><strong>I帧（Intra-coded frame）</strong>：完全独立编码，不依赖其他帧，可以作为随机访问点（例如视频的起始点）。</li>
+<li><strong>P帧（Predictive-coded frame）</strong>：使用之前的I帧或P帧作为参考来进行预测编码，压缩效率较高。</li>
+<li><strong>B帧（Bi-directional predictive-coded frame）</strong>：使用前后帧（I帧或P帧）作为参考进行预测编码，压缩效率最高，但解码复杂度也最大。</li>
+</ol>
+<p>GOP长度决定了视频流中I帧的频率。例如，一个GOP长度为12的视频流表示每12帧就会有一个I帧，其余的帧可能是P帧或B帧。较短的GOP长度（例如GOP长度为1）意味着更多的I帧，从而提高视频的随机访问性能，但会增加数据量。较长的GOP长度则会减少I帧数量，提高压缩效率，但会降低随机访问性能。</p>
+<h4 id="摄像头推拉流-桌面推拉流"><a href="#摄像头推拉流-桌面推拉流" class="headerlink" title="摄像头推拉流&amp;桌面推拉流"></a>摄像头推拉流&amp;桌面推拉流</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">查看摄像头列表</span><br><span class="line">ffmpeg -list_devices true -f dshow -i dummy</span><br><span class="line">播放摄像头 FUll HD webcam 是通过查看列表的命令行获得的名称</span><br><span class="line">ffplay -f dshow -i vedio=“FULL HD webcam”</span><br><span class="line">查看摄像头的分辨率格式</span><br><span class="line">ffmpeg -list_options true -f dshow -i video=&quot;FULL HD webcam&quot;</span><br></pre></td></tr></table></figure>
+
+<h5 id="摄像头推流到RTMP服务"><a href="#摄像头推流到RTMP服务" class="headerlink" title="摄像头推流到RTMP服务"></a>摄像头推流到RTMP服务</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -f dshow -i video=&quot;USB webcam&quot; -vcodec libx264 -acodec aac -ar 44100 -ac 1 -r 25 -s 1920*1080 -f flv rtmp://192.168.1.3/live/desktop</span><br><span class="line">RTMP 视频的码流格式是 flv</span><br></pre></td></tr></table></figure>
+
+<h5 id="摄像头推流到RTSP-（rtp-over-tcp）"><a href="#摄像头推流到RTSP-（rtp-over-tcp）" class="headerlink" title="摄像头推流到RTSP （rtp over tcp）"></a>摄像头推流到RTSP （rtp over tcp）</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -f dshow -i video=&quot;FULL HD webcam&quot; -rtsp transport tcp -vcodec libx264 -preset -ultrafast -acodec libmp3lame -ar 44100 -ac 1 -r 25 -s 1920*1080 -f rtsp rtsp://192.168.1.3/live/desktop</span><br></pre></td></tr></table></figure>
+
+<h5 id="windows桌面推流-RTSP-RTMP"><a href="#windows桌面推流-RTSP-RTMP" class="headerlink" title="windows桌面推流 RTSP&amp;RTMP"></a>windows桌面推流 RTSP&amp;RTMP</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -f gdigrab -i desktop -vcodec libx264 ultrafash 0acodec libmp3lame -ar 44100 -ac 1 -r 25 -s 1920*1080 -f flv rtmp://192.168.1.3/live/desktop</span><br></pre></td></tr></table></figure>
+
+<h5 id="windows桌面推流到RTSP服务"><a href="#windows桌面推流到RTSP服务" class="headerlink" title="windows桌面推流到RTSP服务"></a>windows桌面推流到RTSP服务</h5><h5 id="ffmpeg基本推拉流命令"><a href="#ffmpeg基本推拉流命令" class="headerlink" title="ffmpeg基本推拉流命令"></a>ffmpeg基本推拉流命令</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">RTMP推流 -re表示复制本地文件 -a表示对音频进行操作 -an表示对音频进行禁用</span><br><span class="line">ffmpeg -re -i input.flv -f flv -r 25 -s 1920*1080 -an &quot;rtmp://192.168.0.200/live/test&quot;</span><br><span class="line"></span><br><span class="line">RTSP拉流转RTMP推流</span><br><span class="line">ffmpeg -rtsp_transport tcp -i &quot;rtsp://admin:12345678@192.168.0.2&quot; -f flv -c:v copy -a:v copy -r 25 -s 1920*1080 &quot;rtmp://192.168.0.200/live/test&quot;</span><br></pre></td></tr></table></figure>
+
+<h4 id="ffmpeg-基本操作"><a href="#ffmpeg-基本操作" class="headerlink" title="ffmpeg 基本操作"></a>ffmpeg 基本操作</h4><p>指定时间段录制 -c:v copy 视频文件和源文件保持一致 -c:a copy 音频文件和源文件保持一致</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -i input.mp4 -c:v copy -c:a copy ss 00:30:20 out.mp4</span><br></pre></td></tr></table></figure>
+
+<p>提取h264 裸码流</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -i input.mp4 -c:v copy -bsf:v h264_mp4toannexb -an out.h264</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="实现传输h264的RTSP服务器"><a href="#实现传输h264的RTSP服务器" class="headerlink" title="实现传输h264的RTSP服务器"></a>实现传输h264的RTSP服务器</h2><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/blog_image/image-20240717150632411.png" alt="image-20240717150632411"></p>
+<h4 id="概念补充-1"><a href="#概念补充-1" class="headerlink" title="概念补充"></a>概念补充</h4><h5 id="CSRC-计数器"><a href="#CSRC-计数器" class="headerlink" title="CSRC 计数器"></a>CSRC 计数器</h5><p>CSRC（Contributing Source）计数器通常用于实时传输协议（RTP, Real-time Transport Protocol）中，特别是在涉及多路音频或视频流的情况下。RTP是一种用于在网络上传输实时数据的协议，广泛应用于视频会议、IP电话、流媒体等实时通信应用中。</p>
+<h6 id="CSRC-计数器的概念"><a href="#CSRC-计数器的概念" class="headerlink" title="CSRC 计数器的概念"></a>CSRC 计数器的概念</h6><ul>
+<li><strong>CSRC 标识符（CSRC Identifier）</strong>：在 RTP 包头中，有一个字段叫做 CSRC 列表（CSRC list），用于列出所有为当前 RTP 包贡献数据的源。每个源都有一个唯一的标识符，称为 CSRC 标识符。</li>
+<li><strong>CSRC 计数器</strong>：RTP 包头中有一个字段用于存储 CSRC 标识符的数量，即 CSRC 计数器。它指示了当前 RTP 包中有多少个源贡献了数据。</li>
+</ul>
+<h6 id="CSRC-计数器的作用"><a href="#CSRC-计数器的作用" class="headerlink" title="CSRC 计数器的作用"></a>CSRC 计数器的作用</h6><p>CSRC 计数器的主要作用是帮助接收端了解当前 RTP 包是由哪些源生成或混合而成的。这在混合器（mixer）或中继器（translator）等场景中尤为重要，这些设备会接收多个源的流，并将它们组合成一个新的 RTP 流发送给接收端</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">RTP头的结构体</span><br><span class="line"> </span><br><span class="line">struct RtpHeader</span><br><span class="line">&#123;</span><br><span class="line">    /* byte 0 */</span><br><span class="line">    uint8_t csrcLen : 4;//CSRC计数器，占4位，指示CSRC 标识符的个数。</span><br><span class="line">    uint8_t extension : 1;//占1位，如果X=1，则在RTP报头后跟有一个扩展报头。</span><br><span class="line">    uint8_t padding : 1;//填充标志，占1位，如果P=1，则在该报文的尾部填充一个或多个额外的八位组，它们不是有效载荷的一部分。</span><br><span class="line">    uint8_t version : 2;//RTP协议的版本号，占2位，当前协议版本号为2。</span><br><span class="line"></span><br><span class="line">    /* byte 1 */</span><br><span class="line">    uint8_t payloadType : 7;//有效载荷类型，占7位，用于说明RTP报文中有效载荷的类型，如GSM音频、JPEM图像等。</span><br><span class="line">    uint8_t marker : 1;//标记，占1位，不同的有效载荷有不同的含义，对于视频，标记一帧的结束；对于音频，标记会话的开始。</span><br><span class="line"></span><br><span class="line">    /* bytes 2,3 */</span><br><span class="line">    uint16_t seq;//占16位，用于标识发送者所发送的RTP报文的序列号，每发送一个报文，序列号增1。接收者通过序列号来检测报文丢失情况，重新排序报文，恢复数据。</span><br><span class="line"></span><br><span class="line">    /* bytes 4-7 */</span><br><span class="line">    uint32_t timestamp;//占32位，时戳反映了该RTP报文的第一个八位组的采样时刻。接收者使用时戳来计算延迟和延迟抖动，并进行同步控制。</span><br><span class="line"></span><br><span class="line">    /* bytes 8-11 */</span><br><span class="line">    uint32_t ssrc;//占32位，用于标识同步信源。该标识符是随机选择的，参加同一视频会议的两个同步信源不能有相同的SSRC。</span><br><span class="line"></span><br><span class="line">   /*标准的RTP Header 还可能存在 0-15个特约信源(CSRC)标识符</span><br><span class="line">   </span><br><span class="line">   每个CSRC标识符占32位，可以有0～15个。每个CSRC标识了包含在该RTP报文有效载荷中的所有特约信源</span><br><span class="line"></span><br><span class="line">   */</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>RTP 包的结构体</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">RTP包的结构体</span><br><span class="line"></span><br><span class="line">struct RtpPacket</span><br><span class="line">&#123;</span><br><span class="line">    struct RtpHeader rtpHeader;</span><br><span class="line">    uint8_t payload[0];</span><br><span class="line">&#125;;</span><br><span class="line">// 包含一个RTP头部和RTP载荷</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="H264"><a href="#H264" class="headerlink" title="H264"></a>H264</h3><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xt18971492243/article/details/123360569">https://blog.csdn.net/xt18971492243/article/details/123360569</a></p>
+<p><strong>一、H264压缩技术主要采用了以下几种方法对视频数据进行压缩:</strong><br>帧内预测压缩，解决的是空域数据冗余问题。<br>帧间预测压缩（运动估计与补偿），解决的是时域数据冗徐问题。<br>整数离散余弦变换（DCT），将空间上的相关性变为频域上无关的数据然后进行量化。<br>CABAC压缩。<br>经过压缩后的帧分为：I帧，P帧和B帧:</p>
+<p>I帧：关键帧，采用帧内压缩技术。<br>P帧：向前参考帧，在压缩时，只参考前面已经处理的帧。采用帧音压缩技术。<br>B帧：双向参考帧，在压缩时，它即参考前而的帧，又参考它后面的帧。采用帧间压缩技术。<br>除了I&#x2F;P&#x2F;B帧外，还有图像序列GOP。</p>
+<p><strong>二、h264组成</strong><br>1、网络提取层 (Network Abstraction Layer，NAL)</p>
+<p>每一张图片压缩出来的结果都是一个独立的NAL</p>
+<p>NALU（Network Abstraction Layer Unit，网络抽象层单元）是视频编码中非常重要的概念，特别是在H.264&#x2F;AVC和H.265&#x2F;HEVC等现代视频编码标准中。NALU用于组织和传输编码视频数据，使其适应不同的传输网络和存储介质。一个NALU由两个主要部分组成：NAL头（NAL Header）和NAL有效载荷（NAL Payload）。</p>
+<p><strong>NAL头（NAL Header）</strong>：</p>
+<ul>
+<li>包含关于NALU类型、优先级等信息。</li>
+<li>在H.264中，NAL头通常是1个字节，包含以下几个字段：<ul>
+<li><strong>forbidden_zero_bit</strong>（1位）：这个位必须为0，如果不为0，说明存在错误。</li>
+<li><strong>nal_ref_idc</strong>（2位）：指示该NALU的优先级，0表示最低优先级，3表示最高优先级。</li>
+<li><strong>nal_unit_type</strong>（5位）：指示NALU的类型，如I帧、P帧、SPS、PPS等。</li>
+</ul>
+</li>
+<li>在H.265中，NAL头更加复杂，包含2个字节，提供更多的描述信息。</li>
+</ul>
+<p><strong>NAL有效载荷（NAL Payload）</strong>：</p>
+<ul>
+<li>包含实际的视频编码数据，例如编码的帧数据（如I帧、P帧、B帧），SEI消息（Supplemental Enhancement Information，补充增强信息），SPS（Sequence Parameter Set，序列参数集），PPS（Picture Parameter Set，图像参数集）等。</li>
+</ul>
+<p>2、视讯编码层 (Video Coding Layer，VCL)</p>
+<p>对于形成网络提取层过程的描述</p>
+<p><strong>三、码流结构</strong><br>H.264的功能分为两层，视频编码层（VCL）和网络提取层（NAL）。<br>1.VCL数据即被压缩编码后的视频数据序列。<br>2.在VCL数据要封装到NAL单元中之后，才可以用来传输或存储<br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/blog_image/image-20240717165223364.png" alt="image-20240717165223364"></p>
+<p>SPS：序列参数集，作用于一系列连续的编码图像；<br>PPS：图像参数集，作用于编码视频序列中一个或多个独立的图像；</p>
+<p>用来存储分辨率等一系列信息</p>
+<p><strong>四、IDR帧</strong></p>
+<p>是一种特殊的I帧，常用于视频编码和压缩技术中，特别是在H.264&#x2F;AVC和H.265&#x2F;HEVC等视频编码标准中。</p>
+<p><strong>IDR帧的特点</strong></p>
+<ol>
+<li><strong>独立解码</strong>：IDR帧可以独立解码，不依赖于之前的任何帧。这意味着解码器在解码IDR帧时不需要参考之前的帧，从而提供一个新的解码起点。</li>
+<li><strong>清除参考帧列表</strong>：当解码器遇到一个IDR帧时，它会清除之前所有的参考帧。这防止了解码器使用过时的参考帧进行错误预测，从而保证解码的一致性和准确性。</li>
+<li><strong>随机访问点</strong>：IDR帧通常被用作视频流中的随机访问点（Random Access Point），允许从该帧开始进行无缝播放或快进&#x2F;快退等操作。</li>
+</ol>
+<p><strong>IDR帧在视频编码中的作用</strong></p>
+<ul>
+<li><strong>视频切片</strong>：IDR帧允许视频流被分割成独立的片段，每个片段可以独立解码和播放。这对于视频编辑和处理非常重要。</li>
+<li><strong>错误恢复</strong>：在有损网络环境中（例如流媒体传输），视频数据可能会丢失或损坏。IDR帧提供了一个清晰的恢复点，从而提高了视频流的鲁棒性和稳定性。</li>
+<li><strong>直播和点播</strong>：在直播或点播视频流中，IDR帧允许观众在任意时间点加入直播，而无需从视频的开头开始观看。</li>
+</ul>
+<p><strong>IDR帧与I帧的区别</strong></p>
+<p><strong>普通I帧</strong>：完全独立，可以解码自身，不依赖任何其他帧。它可以被后续的帧引用作为参考。</p>
+<p><strong>IDR帧</strong>：不仅是独立解码的I帧，而且会强制清除解码器的参考帧缓存，确保后续帧不再引用IDR帧之前的帧。它用于实现视频流的切断点或关键帧，使得在流媒体中可以从该帧开始进行无缝播放或跳转。</p>
+<h3 id="H264-码流进行RTP封装"><a href="#H264-码流进行RTP封装" class="headerlink" title="H264 码流进行RTP封装"></a>H264 码流进行RTP封装</h3><p>H.264由一个一个的NALU组成，每个NALU之间使用<code>00 00 00 01</code>或<code>00 00 01</code>分隔开，每个NALU的第一次字节都有特殊的含义</p>
+<p>NALU（Network Abstraction Layer Unit）NALU是视频流的基本单位，每个NALU包含一段编码后的视频数据。视频编码器将原始视频帧编码为NALU，然后将这些NALU打包成RTP（实时传输协议）包进行传输。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/blog_image/image-20240717172756235.png" alt="image-20240717172756235"></p>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/blog_image/image-20240717172801938.png" alt="image-20240717172801938" style="zoom:50%;" />
+
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/blog_image/image-20240719144547315.png" alt="image-20240719144547315" style="zoom:50%;" />
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">常用Nalu_type：</span><br><span class="line"></span><br><span class="line">0x06 (0 00 00110) SEI   type = 6</span><br><span class="line"></span><br><span class="line">0x67 (0 11 00111) SPS   type = 7</span><br><span class="line"></span><br><span class="line">0x68 (0 11 01000) PPS   type = 8</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">0x65 (0 11 00101) IDR   type = 5</span><br><span class="line"></span><br><span class="line">0x65 (0 10 00101) IDR   type = 5</span><br><span class="line"></span><br><span class="line">0x65 (0 01 00101) IDR   type = 5</span><br><span class="line"></span><br><span class="line">0x65 (0 00 00101) IDR   type = 5</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">0x61 (0 11 00001) I帧   type = 1</span><br><span class="line"></span><br><span class="line">0x41 (0 10 00001) P帧   type = 1</span><br><span class="line"></span><br><span class="line">0x01 (0 00 00001) B帧   type = 1</span><br></pre></td></tr></table></figure>
+
+<p><strong>注：SPS和PPS只是编码解码的参数 不是视频数据</strong></p>
+<p>SPS 和 PPS 定义的是视频流的结构和参数，这些信息在一个视频序列中相对稳定，不需要在每个帧上进行时间同步。它们不代表具体的帧数据，而是描述解码器如何解释后续的实际帧数据。</p>
+<p>从一个H.264的文件中将一个一个的NALU提取出来，然后封装成RTP包</p>
+<p>1，F(forbiden):禁止位，占用NAL头的第一个位，当禁止位值为1时表示语法错误；</p>
+<p>2，NRI:参考级别，占用NAL头的第二到第三个位；值越大，该NAL越重要。（重要级别）</p>
+<p>3，Type:Nal单元数据类型，也就是标识该NAL单元的数据类型是哪种，占用NAL头的第四到第8个位；</p>
+<ul>
+<li><strong>H.264可以由三种RTP打包方式</strong></li>
+</ul>
+<p>（1）单NALU打包： 一个RTP包包含一个完整的NALU。将一整个NALU的数据放入RTP包的载荷中，这是最简单的一种方式。</p>
+<p>（2）聚合打包：对于较小的NALU，一个RTP包可包含多个完整的NALU</p>
+<p>（3）分片打包：对于较大的NALU，一个NALU可以分为多个RTP包发送 每个RTP包都有大小限制的，因为RTP一般都是使用UDP发送，UDP没有流量控制，所以要限制每一次发送的大小，所以如果一个NALU的太大，就需要分成多个RTP包发送，至于如何分成多个RTP包</p>
+<p>当我们进入play method的时候，需要都H264文件，进行封包，RTCP&#x2F;UDP 通道 传输</p>
+<p><strong>视频数据封装和传输</strong>：</p>
+<ul>
+<li><strong>视频编码</strong>：NALU是视频流的基本单位，每个NALU包含一段编码后的视频数据。视频编码器将原始视频帧编码为NALU，然后将这些NALU打包成RTP（实时传输协议）包进行传输。</li>
+<li><strong>传输效率</strong>：通过将视频数据划分为多个NALU，可以提高传输效率和适应不同网络条件。例如，在不可靠的网络条件下，丢失一个NALU不会影响整个视频流的解码。</li>
+</ul>
+<p><strong>解码和播放</strong>：</p>
+<ul>
+<li><strong>NALU解析</strong>：RTSP客户端接收RTP包后，需要解析NALU以重建原始的视频帧。解析NALU是解码过程的关键步骤，它决定了视频流的质量和流畅性。</li>
+<li><strong>同步播放</strong>：NALU中包含时间戳信息，用于在客户端同步播放视频和音频流。正确解析这些时间戳对于实现流畅的播放体验至关重要。</li>
+</ul>
+<p><strong>错误恢复和重传</strong>：</p>
+<ul>
+<li><strong>错误检测</strong>：NALU的头部信息可以帮助检测传输中的错误，并根据需要进行错误恢复。RTSP服务器和客户端可以使用这些信息来判断NALU是否丢失或损坏。</li>
+<li><strong>重传机制</strong>：如果检测到NALU丢失或损坏，RTSP服务器可以根据需要启动重传机制，以确保视频流的完整性和质量。</li>
+</ul>
+<h4 id="SSRC"><a href="#SSRC" class="headerlink" title="SSRC"></a>SSRC</h4><p>SSRC（Synchronization Source identifier）是实时传输协议（RTP）中的一个重要概念。它用于标识参与 RTP 会话的各个数据源，以实现同步和管理。每个 RTP 数据包都包含一个 SSRC 标识符，用于标识数据包的源。这个标识符是随机生成的，目的是确保在同一 RTP 会话中，每个数据源都有一个唯一的标识符。</p>
+<p><strong>同步和多路复用</strong>：</p>
+<ul>
+<li>在 RTP 会话中，同步多个数据流（如音频和视频）是至关重要的。SSRC 使接收端能够正确地同步这些流，确保音频和视频之间的协调一致。</li>
+<li>多路复用是指在同一 RTP 会话中传输多个数据流。通过使用不同的 SSRC 标识符，可以在同一会话中传输和管理多个数据流，而不会发生混淆。</li>
+</ul>
+<p><strong>冲突检测和解决</strong>：</p>
+<ul>
+<li>在 RTP 会话中，如果两个不同的数据源生成了相同的 SSRC 标识符，就会发生冲突。RTP 规范提供了冲突检测和解决机制。例如，当检测到 SSRC 冲突时，数据源会生成一个新的 SSRC 标识符并继续发送数据。</li>
+<li>冲突检测机制确保了 SSRC 标识符的唯一性，从而保证了数据流的正确标识和管理。</li>
+</ul>
+<p><strong>生成</strong>：</p>
+<ul>
+<li>当一个 RTP 会话开始时，每个数据源会随机生成一个 32 位的 SSRC 标识符。这个标识符在会话期间应保持不变，以确保数据流的一致性。</li>
+</ul>
+<p><strong>传输</strong>：</p>
+<ul>
+<li>在每个 RTP 数据包的头部，都包含一个 SSRC 字段，用于标识该数据包的源。接收端使用这个 SSRC 标识符来区分和管理不同的数据流。</li>
+<li>例如，在视频会议中，音频和视频数据包会分别带有不同的 SSRC 标识符，接收端根据 SSRC 将音频和视频流进行同步和播放。</li>
+</ul>
+<h4 id="RTP包的格式是绝不会变的，永远是RTP头-RTP载荷"><a href="#RTP包的格式是绝不会变的，永远是RTP头-RTP载荷" class="headerlink" title="RTP包的格式是绝不会变的，永远是RTP头+RTP载荷"></a><strong>RTP包的格式是绝不会变的，永远是RTP头+RTP载荷</strong></h4><h4 id="如何解决无法区分RTP-是分片打包的头尾还是中间"><a href="#如何解决无法区分RTP-是分片打包的头尾还是中间" class="headerlink" title="如何解决无法区分RTP 是分片打包的头尾还是中间"></a>如何解决无法区分RTP 是分片打包的头尾还是中间</h4><p><strong>第一个字节位</strong><code>**FU Indicator**</code><strong>，其格式如下</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/blog_image/clip_image002.gif" alt="IMG_256"></p>
+<p>高三位：与NALU第一个字节的高三位相同</p>
+<p>Type：28，表示该RTP包一个分片，为什么是28</p>
+<p><strong>第二个字节位</strong><code>**FU Header**</code><strong>，其格式如下</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/blog_image/clip_image004.gif" alt="IMG_256"></p>
+<p>S：标记该分片打包的第一个RTP包</p>
+<p>E：比较该分片打包的最后一个RTP包</p>
+<p>Type：NALU的Type</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//开始播放，发送RTP包</span></span><br><span class="line"><span class="keyword">if</span> (!<span class="built_in">strcmp</span>(method, <span class="string">&quot;PLAY&quot;</span>)) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> frameSize, startCode;</span><br><span class="line">    <span class="type">char</span>* frame = (<span class="type">char</span>*)<span class="built_in">malloc</span>(<span class="number">500000</span>);</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">RtpPacket</span>* rtpPacket = (<span class="keyword">struct</span> RtpPacket*)<span class="built_in">malloc</span>(<span class="number">500000</span>);</span><br><span class="line">    FILE* fp = <span class="built_in">fopen</span>(H264_FILE_NAME, <span class="string">&quot;rb&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (!fp) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;读取 %s 失败\n&quot;</span>, H264_FILE_NAME);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">rtpHeaderInit</span>(rtpPacket, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, RTP_VESION, RTP_PAYLOAD_TYPE_H264, <span class="number">0</span>,</span><br><span class="line">        <span class="number">0</span>, <span class="number">0</span>, <span class="number">0x88923423</span>);</span><br><span class="line">    <span class="comment">// 0x88923423 SSRC 已写死</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;start play\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;client ip:%s\n&quot;</span>, clientIP);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;client port:%d\n&quot;</span>, clientRtpPort);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        frameSize = <span class="built_in">getFrameFromH264File</span>(fp, frame, <span class="number">500000</span>);</span><br><span class="line">        <span class="keyword">if</span> (frameSize &lt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;读取%s结束,frameSize=%d \n&quot;</span>, H264_FILE_NAME, frameSize);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 判断当前帧起始码</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">startCode3</span>(frame))</span><br><span class="line">            startCode = <span class="number">3</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            startCode = <span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 帧的实际数据长度</span></span><br><span class="line">        frameSize -= startCode;</span><br><span class="line">        <span class="built_in">rtpSendH264Frame</span>(serverRtpSockfd, clientIP, clientRtpPort,</span><br><span class="line">            rtpPacket, frame + startCode, frameSize);</span><br><span class="line"></span><br><span class="line">       </span><br><span class="line"></span><br><span class="line">        <span class="built_in">Sleep</span>(<span class="number">40</span>);</span><br><span class="line">        <span class="comment">//usleep(40000);//1000/25 * 1000</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">free</span>(frame);</span><br><span class="line">    <span class="built_in">free</span>(rtpPacket);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">memset</span>(method,<span class="number">0</span>,<span class="built_in">sizeof</span>(method)/<span class="built_in">sizeof</span>(<span class="type">char</span>));</span><br><span class="line"><span class="built_in">memset</span>(url,<span class="number">0</span>,<span class="built_in">sizeof</span>(url)/<span class="built_in">sizeof</span>(<span class="type">char</span>));</span><br><span class="line">CSeq = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>根据3 or 4个分隔符每次读取一个NALU</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> <span class="type">int</span> <span class="title">getFrameFromH264File</span><span class="params">(FILE* fp, <span class="type">char</span>* frame, <span class="type">int</span> size)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> rSize, frameSize;</span><br><span class="line">    <span class="type">char</span>* nextStartCode;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (fp &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">    rSize = <span class="built_in">fread</span>(frame, <span class="number">1</span>, size, fp);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">startCode3</span>(frame) &amp;&amp; !<span class="built_in">startCode4</span>(frame))</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">    nextStartCode = <span class="built_in">findNextStartCode</span>(frame + <span class="number">3</span>, rSize - <span class="number">3</span>);</span><br><span class="line">    <span class="keyword">if</span> (!nextStartCode)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//lseek(fd, 0, SEEK_SET);</span></span><br><span class="line">        <span class="comment">//frameSize = rSize;</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        frameSize = (nextStartCode - frame);</span><br><span class="line">        <span class="built_in">fseek</span>(fp, frameSize - rSize, SEEK_CUR);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> frameSize;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>将 H.264 视频帧分片和封装到 RTP 包中的功能，并通过 UDP 发送</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> <span class="type">int</span> <span class="title">rtpSendH264Frame</span><span class="params">(<span class="type">int</span> serverRtpSockfd, <span class="type">const</span> <span class="type">char</span>* ip, <span class="type">int16_t</span> port,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="keyword">struct</span> RtpPacket* rtpPacket, <span class="type">char</span>* frame, <span class="type">uint32_t</span> frameSize)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> </span><br><span class="line">    <span class="type">uint8_t</span> naluType; <span class="comment">// nalu第一个字节</span></span><br><span class="line">    <span class="type">int</span> sendBytes = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> ret;</span><br><span class="line"></span><br><span class="line">    naluType = frame[<span class="number">0</span>];</span><br><span class="line">    <span class="comment">// 获取后五位 naluType = frame[0] &amp; 0x1F;</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;frameSize=%d \n&quot;</span>, frameSize);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (frameSize &lt;= RTP_MAX_PKT_SIZE) <span class="comment">// nalu长度小于最大包长：单一NALU单元模式</span></span><br><span class="line">    &#123;</span><br><span class="line"></span><br><span class="line">         <span class="comment">//*   0 1 2 3 4 5 6 7 8 9</span></span><br><span class="line">         <span class="comment">//*  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span></span><br><span class="line">         <span class="comment">//*  |F|NRI|  Type   | a single NAL unit ... |</span></span><br><span class="line">         <span class="comment">//*  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span></span><br><span class="line"></span><br><span class="line">        <span class="built_in">memcpy</span>(rtpPacket-&gt;payload, frame, frameSize);</span><br><span class="line">        ret = <span class="built_in">rtpSendPacketOverUdp</span>(serverRtpSockfd, ip, port, rtpPacket, frameSize);</span><br><span class="line">        <span class="keyword">if</span>(ret &lt; <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 加序并累计</span></span><br><span class="line">        rtpPacket-&gt;rtpHeader.seq++;</span><br><span class="line">        sendBytes += ret;</span><br><span class="line">        <span class="keyword">if</span> ((naluType &amp; <span class="number">0x1F</span>) == <span class="number">7</span> || (naluType &amp; <span class="number">0x1F</span>) == <span class="number">8</span>) <span class="comment">// 如果是SPS、PPS就不需要加时间戳</span></span><br><span class="line">            <span class="keyword">goto</span> out;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="comment">// nalu长度小于最大包场：分片模式</span></span><br><span class="line">    &#123;</span><br><span class="line"></span><br><span class="line">         <span class="comment">//*  0                   1                   2</span></span><br><span class="line">         <span class="comment">//*  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3</span></span><br><span class="line">         <span class="comment">//* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span></span><br><span class="line">         <span class="comment">//* | FU indicator  |   FU header   |   FU payload   ...  |</span></span><br><span class="line">         <span class="comment">//* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">         <span class="comment">//*     FU Indicator</span></span><br><span class="line">         <span class="comment">//*    0 1 2 3 4 5 6 7</span></span><br><span class="line">         <span class="comment">//*   +-+-+-+-+-+-+-+-+</span></span><br><span class="line">         <span class="comment">//*   |F|NRI|  Type   |</span></span><br><span class="line">         <span class="comment">//*   +---------------+</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">         <span class="comment">//*      FU Header</span></span><br><span class="line">         <span class="comment">//*    0 1 2 3 4 5 6 7</span></span><br><span class="line">         <span class="comment">//*   +-+-+-+-+-+-+-+-+</span></span><br><span class="line">         <span class="comment">//*   |S|E|R|  Type   |</span></span><br><span class="line">         <span class="comment">//*   +---------------+</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> pktNum = frameSize / RTP_MAX_PKT_SIZE;       <span class="comment">// 有几个完整的包</span></span><br><span class="line">        <span class="type">int</span> remainPktSize = frameSize % RTP_MAX_PKT_SIZE; <span class="comment">// 剩余不完整包的大小</span></span><br><span class="line">        <span class="type">int</span> i, pos = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 发送完整的包</span></span><br><span class="line">        <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; pktNum; i++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 2、3位与运算 后五位28或运算</span></span><br><span class="line">            rtpPacket-&gt;payload[<span class="number">0</span>] = (naluType &amp; <span class="number">0x60</span>) | <span class="number">28</span>;</span><br><span class="line">            rtpPacket-&gt;payload[<span class="number">1</span>] = naluType &amp; <span class="number">0x1F</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (i == <span class="number">0</span>) <span class="comment">//第一包数据</span></span><br><span class="line">                rtpPacket-&gt;payload[<span class="number">1</span>] |= <span class="number">0x80</span>; <span class="comment">// start</span></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (remainPktSize == <span class="number">0</span> &amp;&amp; i == pktNum - <span class="number">1</span>) <span class="comment">//最后一包数据</span></span><br><span class="line">                rtpPacket-&gt;payload[<span class="number">1</span>] |= <span class="number">0x40</span>; <span class="comment">// end</span></span><br><span class="line"></span><br><span class="line">            <span class="built_in">memcpy</span>(rtpPacket-&gt;payload+<span class="number">2</span>, frame+pos, RTP_MAX_PKT_SIZE);</span><br><span class="line">            ret = <span class="built_in">rtpSendPacketOverUdp</span>(serverRtpSockfd, ip, port, rtpPacket, RTP_MAX_PKT_SIZE+<span class="number">2</span>);</span><br><span class="line">            <span class="keyword">if</span>(ret &lt; <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">            rtpPacket-&gt;rtpHeader.seq++;</span><br><span class="line">            sendBytes += ret;</span><br><span class="line">            pos += RTP_MAX_PKT_SIZE;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 发送剩余的数据</span></span><br><span class="line">        <span class="keyword">if</span> (remainPktSize &gt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            rtpPacket-&gt;payload[<span class="number">0</span>] = (naluType &amp; <span class="number">0x60</span>) | <span class="number">28</span>;</span><br><span class="line">            rtpPacket-&gt;payload[<span class="number">1</span>] = naluType &amp; <span class="number">0x1F</span>;</span><br><span class="line">            rtpPacket-&gt;payload[<span class="number">1</span>] |= <span class="number">0x40</span>; <span class="comment">//end</span></span><br><span class="line"></span><br><span class="line">            <span class="built_in">memcpy</span>(rtpPacket-&gt;payload+<span class="number">2</span>, frame+pos, remainPktSize+<span class="number">2</span>);</span><br><span class="line">            ret = <span class="built_in">rtpSendPacketOverUdp</span>(serverRtpSockfd, ip, port, rtpPacket, remainPktSize+<span class="number">2</span>);</span><br><span class="line">            <span class="keyword">if</span>(ret &lt; <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">            rtpPacket-&gt;rtpHeader.seq++;</span><br><span class="line">            sendBytes += ret;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 时间戳累计 fps=25 时间定义1s=90000</span></span><br><span class="line">    rtpPacket-&gt;rtpHeader.timestamp += <span class="number">90000</span> / <span class="number">25</span>;</span><br><span class="line">    out:</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> sendBytes;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/blog_imageavater.jpg" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/blog_imageavater.jpg" title="头像" alt="头像"></a><div class="post-copyright__author_name">Edmend Zhang</div><div class="post-copyright__author_desc"></div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2024/07/29/intern/RTSP%20%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%9E%E7%8E%B0/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2024/07/29/intern/RTSP%20%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%9E%E7%8E%B0/')">RTSP 服务器实现</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2024/07/29/intern/RTSP%20%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%9E%E7%8E%B0/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=RTSP 服务器实现&amp;url=http://example.com/2024/07/29/intern/RTSP%20%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%9E%E7%8E%B0/&amp;pic=https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Aachal%20%280S11oxS9vyc%29.jpg?_r_=281e90ed-2bd9-b1a4-30e5-7488346a406f" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"><a class="post-meta__box__tags" href="/tags/RTSP/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>RTSP<span class="tagsPageCount">6</span></a></div></div></div><div class="post_share"><div class="social-share" data-image="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Alessio%20Furlan%20%281_w81R7vBDs%29.jpg?_r_=235b1285-5ffe-d949-77fb-fbede4f0088b" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/07/29/intern/RTSP%E6%9C%8D%E5%8A%A1%E5%99%A8%20%E6%BA%90%E7%A0%81%E7%90%86%E8%A7%A3/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Alessio%20Soggetti%20%28IuSemNxGS88%29.jpg?_r_=15024c5a-c97b-05e3-2670-c96d98aae2a6" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">RTSP 服务器 源码理解</div></div></a></div><div class="next-post pull-right"><a href="/2024/07/29/intern/RTSP%20%E5%AE%A2%E6%88%B7%E7%AB%AF/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Alessandro%20Erbetta%20%28mpWPcRT9D1E%29.jpg?_r_=4a215755-32b6-8541-e1ef-38bac6e06b83" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">RTSP 客户端</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="anzhiyufont anzhiyu-icon-thumbs-up fa-fw" style="font-size: 1.5rem; margin-right: 4px"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/07/29/intern/RTSP%20%E5%92%8C%20RTMP%20%E5%8E%9F%E7%90%86%20%E9%80%9A%E8%BF%87ffmpeg%20%E5%AE%9E%E7%8E%B0%E5%B0%86%E6%9C%AC%E5%9C%B0%E6%91%84%E5%83%8F%E5%A4%B4%E4%B8%B2%E6%B5%81%E5%88%B0RTSP%E6%9C%8D%E5%8A%A1%E5%99%A8/" title="RTSP 和 RTMP 原理 通过ffmpeg 实现将本地摄像头串流到RTSP服务器"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Abyan%20Athif%20%28DvYwy0mQdE0%29.jpg?_r_=9739a5ad-0715-d139-d658-78d5113e5f20" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2024-07-29</div><div class="title">RTSP 和 RTMP 原理 通过ffmpeg 实现将本地摄像头串流到RTSP服务器</div></div></a></div><div><a href="/2024/07/29/intern/RTSP%20%E5%AE%A2%E6%88%B7%E7%AB%AF/" title="RTSP 客户端"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Alessandro%20Erbetta%20%28mpWPcRT9D1E%29.jpg?_r_=4a215755-32b6-8541-e1ef-38bac6e06b83" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2024-07-29</div><div class="title">RTSP 客户端</div></div></a></div><div><a href="/2024/07/29/intern/RTSP%E6%9C%8D%E5%8A%A1%E5%99%A8%20%E6%BA%90%E7%A0%81%E7%90%86%E8%A7%A3/" title="RTSP 服务器 源码理解"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Alessio%20Soggetti%20%28IuSemNxGS88%29.jpg?_r_=15024c5a-c97b-05e3-2670-c96d98aae2a6" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2024-07-29</div><div class="title">RTSP 服务器 源码理解</div></div></a></div><div><a href="/2024/07/29/intern/live555%20%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" title="live555 源码阅读"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Alessio%20Soggetti%20%281mkVnXqAErM%29.jpg?_r_=b2e59be5-d634-8d9f-34cc-34aeb1a0b74a" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2024-07-29</div><div class="title">live555 源码阅读</div></div></a></div><div><a href="/2024/07/29/intern/%E5%9F%BA%E4%BA%8Etcp%E7%9A%84RTP%E4%BC%A0%E8%BE%93%E6%9C%8D%E5%8A%A1%E5%99%A8/" title="基于tcp的RTP传输服务器"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Ales%20Krivec%20%2803YJ4PT6uKM%29.jpg?_r_=b74599e2-a8df-3d77-717d-7742ba933e00" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2024-07-29</div><div class="title">基于tcp的RTP传输服务器</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><img class="avatar-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/blog_imageavater.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/08/24/64e6ce9c507bb.png" alt="status"/></div></div><div class="author-info__description"></div></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bullhorn anzhiyu-shake"></i><span>Announcement</span></div><div class="announcement_content">欢迎~</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#RTSP-%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.</span> <span class="toc-text">RTSP 服务器实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#RTSP%E5%8D%8F%E8%AE%AE%E8%A7%A3%E6%9E%90%E5%8F%8A%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.1.</span> <span class="toc-text">RTSP协议解析及实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Wireshark-%E6%8D%95%E8%8E%B7"><span class="toc-number">1.1.1.</span> <span class="toc-text">Wireshark 捕获</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ffmpeg"><span class="toc-number">1.2.</span> <span class="toc-text">ffmpeg</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ffmpeg-%E4%B8%89%E5%A4%A7%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7"><span class="toc-number">1.2.1.</span> <span class="toc-text">ffmpeg 三大命令行工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ffmpeg-%E5%91%BD%E4%BB%A4%E8%A1%8C"><span class="toc-number">1.2.2.</span> <span class="toc-text">ffmpeg 命令行</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%86%E9%A2%91%E7%94%9F%E6%88%90%E5%9B%BE%E7%89%87"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">视频生成图片</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%BE%E7%89%87%E5%90%88%E6%88%90%E8%A7%86%E9%A2%91"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">图片合成视频</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%A6%82%E5%BF%B5%E8%A1%A5%E5%85%85"><span class="toc-number">1.2.2.2.1.</span> <span class="toc-text">概念补充</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%91%84%E5%83%8F%E5%A4%B4%E6%8E%A8%E6%8B%89%E6%B5%81-%E6%A1%8C%E9%9D%A2%E6%8E%A8%E6%8B%89%E6%B5%81"><span class="toc-number">1.2.2.3.</span> <span class="toc-text">摄像头推拉流&amp;桌面推拉流</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%91%84%E5%83%8F%E5%A4%B4%E6%8E%A8%E6%B5%81%E5%88%B0RTMP%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.2.2.3.1.</span> <span class="toc-text">摄像头推流到RTMP服务</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%91%84%E5%83%8F%E5%A4%B4%E6%8E%A8%E6%B5%81%E5%88%B0RTSP-%EF%BC%88rtp-over-tcp%EF%BC%89"><span class="toc-number">1.2.2.3.2.</span> <span class="toc-text">摄像头推流到RTSP （rtp over tcp）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#windows%E6%A1%8C%E9%9D%A2%E6%8E%A8%E6%B5%81-RTSP-RTMP"><span class="toc-number">1.2.2.3.3.</span> <span class="toc-text">windows桌面推流 RTSP&amp;RTMP</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#windows%E6%A1%8C%E9%9D%A2%E6%8E%A8%E6%B5%81%E5%88%B0RTSP%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.2.2.3.4.</span> <span class="toc-text">windows桌面推流到RTSP服务</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#ffmpeg%E5%9F%BA%E6%9C%AC%E6%8E%A8%E6%8B%89%E6%B5%81%E5%91%BD%E4%BB%A4"><span class="toc-number">1.2.2.3.5.</span> <span class="toc-text">ffmpeg基本推拉流命令</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ffmpeg-%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="toc-number">1.2.2.4.</span> <span class="toc-text">ffmpeg 基本操作</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E4%BC%A0%E8%BE%93h264%E7%9A%84RTSP%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.3.</span> <span class="toc-text">实现传输h264的RTSP服务器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A6%82%E5%BF%B5%E8%A1%A5%E5%85%85-1"><span class="toc-number">1.3.0.1.</span> <span class="toc-text">概念补充</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#CSRC-%E8%AE%A1%E6%95%B0%E5%99%A8"><span class="toc-number">1.3.0.1.1.</span> <span class="toc-text">CSRC 计数器</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#CSRC-%E8%AE%A1%E6%95%B0%E5%99%A8%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="toc-number">1.3.0.1.1.1.</span> <span class="toc-text">CSRC 计数器的概念</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#CSRC-%E8%AE%A1%E6%95%B0%E5%99%A8%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">1.3.0.1.1.2.</span> <span class="toc-text">CSRC 计数器的作用</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#H264"><span class="toc-number">1.3.1.</span> <span class="toc-text">H264</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#H264-%E7%A0%81%E6%B5%81%E8%BF%9B%E8%A1%8CRTP%E5%B0%81%E8%A3%85"><span class="toc-number">1.3.2.</span> <span class="toc-text">H264 码流进行RTP封装</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SSRC"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">SSRC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RTP%E5%8C%85%E7%9A%84%E6%A0%BC%E5%BC%8F%E6%98%AF%E7%BB%9D%E4%B8%8D%E4%BC%9A%E5%8F%98%E7%9A%84%EF%BC%8C%E6%B0%B8%E8%BF%9C%E6%98%AFRTP%E5%A4%B4-RTP%E8%BD%BD%E8%8D%B7"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">RTP包的格式是绝不会变的，永远是RTP头+RTP载荷</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E6%97%A0%E6%B3%95%E5%8C%BA%E5%88%86RTP-%E6%98%AF%E5%88%86%E7%89%87%E6%89%93%E5%8C%85%E7%9A%84%E5%A4%B4%E5%B0%BE%E8%BF%98%E6%98%AF%E4%B8%AD%E9%97%B4"><span class="toc-number">1.3.2.3.</span> <span class="toc-text">如何解决无法区分RTP 是分片打包的头尾还是中间</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/07/29/hello-world/" title="Hello World"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Alessio%20Furlan%20%281_w81R7vBDs%29.jpg?_r_=235b1285-5ffe-d949-77fb-fbede4f0088b" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hello World"/></a><div class="content"><a class="title" href="/2024/07/29/hello-world/" title="Hello World">Hello World</a><time datetime="2024-07-29T11:10:14.894Z" title="Created 2024-07-29 11:10:14">2024-07-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/07/29/intern/Docker(2)/" title="docker（2）"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Adam%20Przeniewski%20%28DgXiyrNE8FU%29.jpg?_r_=f5c0dfd0-fd5c-4cbd-4438-907494c1550a" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="docker（2）"/></a><div class="content"><a class="title" href="/2024/07/29/intern/Docker(2)/" title="docker（2）">docker（2）</a><time datetime="2024-07-29T11:10:14.894Z" title="Created 2024-07-29 11:10:14">2024-07-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/07/29/intern/Docker/" title="Docker"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Adam%20Przeniewski%20%28DgXiyrNE8FU%29.jpg?_r_=66585cb0-04b3-08d6-ab43-d6eca44964ba" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Docker"/></a><div class="content"><a class="title" href="/2024/07/29/intern/Docker/" title="Docker">Docker</a><time datetime="2024-07-29T11:10:14.894Z" title="Created 2024-07-29 11:10:14">2024-07-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/07/29/intern/FFMPEG+SDL%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84/" title="FFMPEG+SDL播放器"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Abyan%20Athif%20%28DvYwy0mQdE0%29.jpg?_r_=c55d2481-a1a1-e1f6-d46f-60dc8fd22ac0" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="FFMPEG+SDL播放器"/></a><div class="content"><a class="title" href="/2024/07/29/intern/FFMPEG+SDL%E6%92%AD%E6%94%BE%E5%99%A8%E6%9E%B6%E6%9E%84/" title="FFMPEG+SDL播放器">FFMPEG+SDL播放器</a><time datetime="2024-07-29T11:10:14.894Z" title="Created 2024-07-29 11:10:14">2024-07-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/07/29/intern/RTSP%20%E5%92%8C%20RTMP%20%E5%8E%9F%E7%90%86%20%E9%80%9A%E8%BF%87ffmpeg%20%E5%AE%9E%E7%8E%B0%E5%B0%86%E6%9C%AC%E5%9C%B0%E6%91%84%E5%83%8F%E5%A4%B4%E4%B8%B2%E6%B5%81%E5%88%B0RTSP%E6%9C%8D%E5%8A%A1%E5%99%A8/" title="RTSP 和 RTMP 原理 通过ffmpeg 实现将本地摄像头串流到RTSP服务器"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://tryhardzhangblog.oss-us-west-1.aliyuncs.com/cover_top_image/Photo%20by%20Abyan%20Athif%20%28DvYwy0mQdE0%29.jpg?_r_=9739a5ad-0715-d139-d658-78d5113e5f20" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="RTSP 和 RTMP 原理 通过ffmpeg 实现将本地摄像头串流到RTSP服务器"/></a><div class="content"><a class="title" href="/2024/07/29/intern/RTSP%20%E5%92%8C%20RTMP%20%E5%8E%9F%E7%90%86%20%E9%80%9A%E8%BF%87ffmpeg%20%E5%AE%9E%E7%8E%B0%E5%B0%86%E6%9C%AC%E5%9C%B0%E6%91%84%E5%83%8F%E5%A4%B4%E4%B8%B2%E6%B5%81%E5%88%B0RTSP%E6%9C%8D%E5%8A%A1%E5%99%A8/" title="RTSP 和 RTMP 原理 通过ffmpeg 实现将本地摄像头串流到RTSP服务器">RTSP 和 RTMP 原理 通过ffmpeg 实现将本地摄像头串流到RTSP服务器</a><time datetime="2024-07-29T11:10:14.894Z" title="Created 2024-07-29 11:10:14">2024-07-29</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="anzhiyu-footer"><div class="footer-group"><div class="footer-title">服务</div><div class="footer-links"><a class="footer-item" title="51la统计" target="_blank" rel="noopener" href="https://v6.51.la/">51la统计</a><a class="footer-item" title="十年之约" target="_blank" rel="noopener" href="https://www.foreverblog.cn/">十年之约</a><a class="footer-item" title="开往" target="_blank" rel="noopener" href="https://github.com/travellings-link/travellings">开往</a></div></div><div class="footer-group"><div class="footer-title">主题</div><div class="footer-links"><a class="footer-item" title="文档" href="/docs/">文档</a><a class="footer-item" title="源码" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu">源码</a><a class="footer-item" title="更新日志" href="/update/">更新日志</a></div></div><div class="footer-group"><div class="footer-title">导航</div><div class="footer-links"><a class="footer-item" title="即刻短文" href="/essay/">即刻短文</a><a class="footer-item" title="友链文章" href="/fcircle/">友链文章</a><a class="footer-item" title="留言板" href="/comments/">留言板</a></div></div><div class="footer-group"><div class="footer-title">协议</div><div class="footer-links"><a class="footer-item" title="隐私协议" href="/privacy/">隐私协议</a><a class="footer-item" title="Cookies" href="/cookies/">Cookies</a><a class="footer-item" title="版权协议" href="/copyright/">版权协议</a></div></div><div class="footer-group"><div class="footer-title-group"><div class="footer-title">友链</div><a class="random-friends-btn" id="footer-random-friends-btn" href="javascript:addFriendLinksInFooter();" title="换一批友情链接"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right"></i></a></div><div class="footer-links" id="friend-links-in-footer"></div></div></div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2020 - 2024 By <a class="footer-bar-link" href="/" title="Edmend Zhang" target="_blank">Edmend Zhang</a></div></div><div id="footer-type-tips"></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a></div></div></div></footer></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">32</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">18</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">9</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://blog.tryhardzhang.xyz/" title="博客"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/img/favicon.ico" alt="博客"/><span class="back-menu-item-text">博客</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">项目</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://blog.tryhardzhang.xyz/" title="none"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://image.anheyu.com/favicon.ico" alt="none"/><span class="back-menu-item-text">none</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 隧道</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 想法</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=9570676565&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> 相册集</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/air-conditioner/"><i class="anzhiyufont anzhiyu-icon-fan faa-tada" style="font-size: 0.9em;"></i><span> 小空调</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> 关于本人</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> 随便逛逛</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/Docker/" style="font-size: 0.88rem;">Docker<sup>1</sup></a><a href="/tags/FFMPEG/" style="font-size: 0.88rem;">FFMPEG<sup>1</sup></a><a href="/tags/Graphics/" style="font-size: 0.88rem;">Graphics<sup>13</sup></a><a href="/tags/Graphics-Games101/" style="font-size: 0.88rem;">Graphics - Games101<sup>1</sup></a><a href="/tags/Home-Assistant-%E9%9B%86%E6%88%90-Frigate-%E5%8A%9F%E8%83%BD%E5%B1%95%E7%A4%BA/" style="font-size: 0.88rem;">Home Assistant 集成 Frigate 功能展示<sup>1</sup></a><a href="/tags/HomeAssistant/" style="font-size: 0.88rem;">HomeAssistant<sup>1</sup></a><a href="/tags/RTSP/" style="font-size: 0.88rem;">RTSP<sup>6</sup></a><a href="/tags/SDL/" style="font-size: 0.88rem;">SDL<sup>1</sup></a><a href="/tags/concepts/" style="font-size: 0.88rem;">concepts<sup>2</sup></a><a href="/tags/csen-272/" style="font-size: 0.88rem;">csen 272<sup>2</sup></a><a href="/tags/docker/" style="font-size: 0.88rem;">docker<sup>1</sup></a><a href="/tags/nlp/" style="font-size: 0.88rem;">nlp<sup>2</sup></a><a href="/tags/search/" style="font-size: 0.88rem;">search<sup>2</sup></a><a href="/tags/%E5%8D%9A%E5%AE%A2/" style="font-size: 0.88rem;">博客<sup>1</sup></a><a href="/tags/%E6%92%AD%E6%94%BE%E5%99%A8/" style="font-size: 0.88rem;">播放器<sup>1</sup></a><a href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/" style="font-size: 0.88rem;">虚拟机<sup>1</sup></a><a href="/tags/%E8%AF%BE%E7%A8%8B/" style="font-size: 0.88rem;">课程<sup>1</sup></a><a href="/tags/%E9%9F%B3%E8%A7%86%E9%A2%91%E5%BC%80%E5%8F%91/" style="font-size: 0.88rem;">音视频开发<sup>1</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="9570676565" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="algolia-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="search-wrap"><div id="algolia-search-input"></div><hr/><div id="algolia-search-results"><div id="algolia-hits"></div><div id="algolia-pagination"></div><div id="algolia-info"><div class="algolia-stats"></div><div class="algolia-poweredBy"></div></div></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=9570676565&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@17.8.5/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("04/01/2021 00:00:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2020 By 安知鱼 V1.6.12",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 Edmend Zhang 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script src="https://cdn.cbd.int/algoliasearch@4.18.0/dist/algoliasearch-lite.umd.js"></script><script src="https://cdn.cbd.int/instantsearch.js@4.60.0/dist/instantsearch.production.min.js"></script><script src="/js/search/algolia.js"></script><div class="js-pjax"><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://tryhardzhang.netlify.app/.netlify/functions/twikoo',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.25/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://tryhardzhang.netlify.app/.netlify/functions/twikoo',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script>window.addEventListener('load', () => {
+  const changeContent = (content) => {
+    if (content === '') return content
+
+    content = content.replace(/<img.*?src="(.*?)"?[^\>]+>/ig, '[image]') // replace image link
+    content = content.replace(/<a[^>]+?href=["']?([^"']+)["']?[^>]*>([^<]+)<\/a>/gi, '[link]') // replace url
+    content = content.replace(/<pre><code>.*?<\/pre>/gi, '[code]') // replace code
+    content = content.replace(/<[^>]+>/g,"") // remove html tag
+
+    if (content.length > 150) {
+      content = content.substring(0,150) + '...'
+    }
+    return content
+  }
+
+  const getComment = () => {
+    const runTwikoo = () => {
+      twikoo.getRecentComments({
+        envId: 'https://tryhardzhang.netlify.app/.netlify/functions/twikoo',
+        region: '',
+        pageSize: 6,
+        includeReply: true
+      }).then(function (res) {
+        const twikooArray = res.map(e => {
+          return {
+            'content': changeContent(e.comment),
+            'avatar': e.avatar,
+            'nick': e.nick,
+            'url': e.url + '#' + e.id,
+            'date': new Date(e.created).toISOString()
+          }
+        })
+
+        saveToLocal.set('twikoo-newest-comments', JSON.stringify(twikooArray), 10/(60*24))
+        generateHtml(twikooArray)
+      }).catch(function (err) {
+        const $dom = document.querySelector('#card-newest-comments .aside-list')
+        $dom.textContent= "Unable to get the data, please make sure the settings are correct."
+      })
+    }
+
+    if (typeof twikoo === 'object') {
+      runTwikoo()
+    } else {
+      getScript('https://cdn.cbd.int/twikoo@1.6.25/dist/twikoo.all.min.js').then(runTwikoo)
+    }
+  }
+
+  const generateHtml = array => {
+    let result = ''
+
+    if (array.length) {
+      for (let i = 0; i < array.length; i++) {
+        result += '<div class=\'aside-list-item\'>'
+
+        if (true) {
+          const name = 'data-lazy-src'
+          result += `<a href='${array[i].url}' class='thumbnail'><img ${name}='${array[i].avatar}' alt='${array[i].nick}'><div class='name'><span>${array[i].nick} </span></div></a>`
+        }
+        
+        result += `<div class='content'>
+        <a class='comment' href='${array[i].url}' title='${array[i].content}'>${array[i].content}</a>
+        <time datetime="${array[i].date}">${anzhiyu.diffDate(array[i].date, true)}</time></div>
+        </div>`
+      }
+    } else {
+      result += 'No Comment'
+    }
+
+    let $dom = document.querySelector('#card-newest-comments .aside-list')
+    $dom && ($dom.innerHTML= result)
+    window.lazyLoadInstance && window.lazyLoadInstance.update()
+    window.pjax && window.pjax.refresh($dom)
+  }
+
+  const newestCommentInit = () => {
+    if (document.querySelector('#card-newest-comments .aside-list')) {
+      const data = saveToLocal.get('twikoo-newest-comments')
+      if (data) {
+        generateHtml(JSON.parse(data))
+      } else {
+        getComment()
+      }
+    }
+  }
+
+  newestCommentInit()
+  document.addEventListener('pjax:complete', newestCommentInit)
+})</script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>
